@@ -20,7 +20,8 @@
     "jsonwebtoken": "^9.0.2",
     "mailtrap": "^3.4.0",
     "mongoose": "^8.6.0",
-    "nodemailer": "^6.9.15"
+    "nodemailer": "^6.9.15",
+    "react-modal": "^3.16.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

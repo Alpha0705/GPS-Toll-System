@@ -1,17 +1,27 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock ,Loader} from 'lucide-react';
-import Input from '../components/Input';  // Corrected import
-import { Link } from 'react-router-dom';
+import { Mail, Lock, Loader } from 'lucide-react';
+import Input from '../components/Input';  // Ensure correct import
+import { Link, useNavigate } from 'react-router-dom';  // Import useNavigate
+import { useAuthStore } from '../Store/AuthStore.js';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const isloading = false;
+  
+  const { login, isLoading, error } = useAuthStore();
+  const navigate = useNavigate();  // Initialize useNavigate
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Log the input values for debugging
+    const success = await login(email, password);
+
+    // Redirect to the dashboard if login is successful
+    if (success) {
+      navigate('/dashboard');
+    }
+
+    // Log input values for debugging
     console.log(`Email: ${email}, Password: ${password}`);
   };
 
@@ -45,6 +55,9 @@ const LoginPage = () => {
                 Forgot Password?
               </Link>
           </div>
+          
+          {error && <p className='text-red-600 font-semibold mb-2'>{error}</p>}
+
           <motion.button
             className='mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg 
             hover:from-green-500 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900
@@ -52,20 +65,20 @@ const LoginPage = () => {
             type="submit"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            disabled={isloading}
+            disabled={isLoading}
           >
-            {isloading ? <Loader className='size 6 animate-spin mx-auto'/> : "Login"}
+            {isLoading ? <Loader className='size 6 animate-spin mx-auto' /> : "Login"}
           </motion.button>
         </form>
       </div>
       <div className='px-8 py-4 bg-gray-900 bg-opacity-50 flex justify-center'>
-                <p className='text-sm text-gray-400 text-center'>
-                    New to the Website?{' '}
-                    <Link to='/signup' className='text-green-500 hover:underline'>
-                        Signup
-                    </Link>
-                </p>
-            </div>
+        <p className='text-sm text-gray-400 text-center'>
+          New to the Website?{' '}
+          <Link to='/signup' className='text-green-500 hover:underline'>
+            Sign Up
+          </Link>
+        </p>
+      </div>
     </motion.div>
   );
 };
