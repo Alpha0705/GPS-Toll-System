@@ -1,12 +1,17 @@
-// src/Navbar.jsx
 import React, { useState } from 'react';
 import { LogOut, User, Home, Wallet, FileText, Compass } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuthStore } from '../Store/AuthStore';  // Adjust the path to where your auth store is located
 
-const Navbar = ({ handleLogout }) => {
+const Navbar = () => {
   const [hoveredIcon, setHoveredIcon] = useState(null);
+  const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Access the logout function from the AuthStore
+  const logout = useAuthStore((state) => state.logout);
 
   const navItems = [
     { icon: <Home />, label: 'Dashboard', link: '/dashboard' },
@@ -15,6 +20,17 @@ const Navbar = ({ handleLogout }) => {
     { icon: <FileText />, label: 'Billing History', link: '/billing-history' },
     { icon: <Compass />, label: 'Location History', link: '/location-history' },
   ];
+
+  const confirmLogout = async () => {
+    try {
+      // Call the logout function from useAuthStore
+      await logout();
+      // Navigate to the login page after successful logout
+      navigate('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   return (
     <div className="fixed top-0 left-0 h-full w-[60px] bg-gray-800 text-emerald-500 bg-opacity-50 flex flex-col justify-between items-center py-4">
@@ -47,22 +63,38 @@ const Navbar = ({ handleLogout }) => {
       </div>
       <div
         className="relative group cursor-pointer"
-        onClick={handleLogout}
-        onMouseEnter={() => setHoveredIcon('logout')}
-        onMouseLeave={() => setHoveredIcon(null)}
+        onClick={() => setShowLogoutConfirmation(true)}  // Show the confirmation box when clicked
       >
         <LogOut />
-        {hoveredIcon === 'logout' && (
-          <motion.span
-            className="absolute left-[70px] bg-gray-800 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap"
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -10 }}
-          >
-            Logout
-          </motion.span>
-        )}
       </div>
+
+      {/* Logout Confirmation Box */}
+      <AnimatePresence>
+        {showLogoutConfirmation && (
+          <motion.div 
+            className="absolute bottom-20 left-20 bg-gray-700 text-white p-4 rounded-md shadow-lg"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+          >
+            <p>Are you sure you want to logout?</p>
+            <div className="flex space-x-4 mt-2">
+              <button
+                className="bg-red-500 px-4 py-2 rounded text-white"
+                onClick={confirmLogout}  // If yes, confirm logout
+              >
+                Yes
+              </button>
+              <button
+                className="bg-gray-500 px-4 py-2 rounded text-white"
+                onClick={() => setShowLogoutConfirmation(false)}  // Cancel logout
+              >
+                No
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

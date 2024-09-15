@@ -12,6 +12,7 @@ import BillingHistory from "./pages/BillingHistory.jsx";
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from "./Store/AuthStore.js";
 import LocationHistory from "./pages/locationHistory.jsx";
+import LoadingSpinner from "./components/LoadingSpinner.jsx";
 
 // Protect Authenticated route
 const ProtectedRoute = ({ children }) => {
@@ -45,6 +46,8 @@ function App() {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  if(isCheckingAuth) return <LoadingSpinner/>
 
   console.log("isAuthenticated:", isAuthenticated);
   console.log("user:", user);
