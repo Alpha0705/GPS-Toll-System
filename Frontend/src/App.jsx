@@ -13,6 +13,7 @@ import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from "./Store/AuthStore.js";
 import LocationHistory from "./pages/locationHistory.jsx";
 import LoadingSpinner from "./components/LoadingSpinner.jsx";
+import ErrorBoundary from "./ErrorHandling/ErrorBoundary.jsx"
 
 // Protect Authenticated route
 const ProtectedRoute = ({ children }) => {
@@ -58,17 +59,20 @@ function App() {
       <FloatingShape color="bg-emerald-500" size="w-48 h-48" top="70%" left="80%" delay={5} />
       <FloatingShape color="bg-lime-500" size="w-32 h-32" top="40%" left="-10%" delay={2} />
 
-      <Routes>
-        <Route path="/" element={<RedirectAuthenticatedUser><HomePage /></RedirectAuthenticatedUser>} />
-        <Route path="/signup" element={<RedirectAuthenticatedUser><SignUpPage /></RedirectAuthenticatedUser>} />
-        <Route path="/login" element={<RedirectAuthenticatedUser><LoginPage /></RedirectAuthenticatedUser>} />
-        <Route path="/verifyemail" element={<VerifyEmailPage />} />
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/wallet" element={<Wallet />} />
-        <Route path="/billing-history" element={<BillingHistory />} />
-        <Route path="/location-history" element={<LocationHistory />} />
-      </Routes>
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<RedirectAuthenticatedUser><HomePage /></RedirectAuthenticatedUser>} />
+          <Route path="/signup" element={<RedirectAuthenticatedUser><SignUpPage /></RedirectAuthenticatedUser>} />
+          <Route path="/login" element={<RedirectAuthenticatedUser><LoginPage /></RedirectAuthenticatedUser>} />
+          <Route path="/verifyemail" element={<VerifyEmailPage />} />
+          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/wallet" element={<Wallet />} />
+          <Route path="/billing-history" element={<BillingHistory />} />
+          <Route path="/location-history" element={<LocationHistory />} />
+        </Routes>
+      </ErrorBoundary>
+
       <Toaster />
     </div>
   );
