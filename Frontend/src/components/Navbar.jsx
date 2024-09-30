@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LogOut, User, Home, Wallet, FileText, Compass } from 'lucide-react';
+import { LogOut, User, Home, Wallet, FileText, Compass, MessageCircle } from 'lucide-react'; // Removed Icon
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../Store/AuthStore';  // Adjust the path to where your auth store is located
@@ -19,6 +19,7 @@ const Navbar = () => {
     { icon: <Wallet />, label: 'Wallet', link: '/wallet' },
     { icon: <FileText />, label: 'Billing History', link: '/billing-history' },
     { icon: <Compass />, label: 'Location History', link: '/location-history' },
+    { icon: <MessageCircle />, label: 'Contact Us', link: '/contact-us' }, // Contact Us item
   ];
 
   const confirmLogout = async () => {
@@ -33,7 +34,14 @@ const Navbar = () => {
   };
 
   return (
-    <div className="fixed top-0 left-0 h-full w-[60px] bg-gray-800 text-emerald-500 bg-opacity-50 flex flex-col justify-between items-center py-4">
+    <div className="fixed top-0 left-0 h-full w-[60px] bg-gray-800 text-emerald-500 bg-opacity-50 flex flex-col justify-between items-center py-4 z-40">
+      {/* Logo at the top */}
+      <div className="flex flex-col justify-center items-center mb-6">
+        {/* Placeholder for your logo */}
+        {/* Add your logo here or remove this div if not needed */}
+      </div>
+
+      {/* Navigation Icons */}
       <div className="flex flex-col justify-center items-center h-full space-y-10">
         {navItems.map((item, index) => (
           <Link
@@ -49,7 +57,8 @@ const Navbar = () => {
             <AnimatePresence>
               {hoveredIcon === index && (
                 <motion.span
-                  className="absolute left-[70px] bg-gray-800 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap"
+                  className="absolute left-[70px] bg-gray-800 text-white px-2 py-1 rounded-md shadow-lg whitespace-nowrap z-[1000]" // Increased z-index
+                  style={{ pointerEvents: 'none' }} // Prevent hover block
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
@@ -61,6 +70,8 @@ const Navbar = () => {
           </Link>
         ))}
       </div>
+
+      {/* Logout Icon */}
       <div
         className="relative group cursor-pointer"
         onClick={() => setShowLogoutConfirmation(true)}  // Show the confirmation box when clicked
@@ -72,7 +83,7 @@ const Navbar = () => {
       <AnimatePresence>
         {showLogoutConfirmation && (
           <motion.div 
-            className="absolute bottom-20 left-20 bg-gray-700 text-white p-4 rounded-md shadow-lg"
+            className="absolute bottom-20 left-20 bg-gray-700 text-white p-4 rounded-md shadow-lg z-[1000]" // Increased z-index
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}

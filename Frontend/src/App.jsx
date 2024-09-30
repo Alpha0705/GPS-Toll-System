@@ -1,6 +1,13 @@
 import React, { useEffect } from "react";
 import FloatingShape from "./components/FloatingShape.jsx";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from 'react-hot-toast';
+
+import { useAuthStore } from "./Store/AuthStore.js";
+import LocationHistory from "./pages/locationHistory.jsx";
+import LoadingSpinner from "./components/LoadingSpinner.jsx";
+import ErrorBoundary from "./ErrorHandling/ErrorBoundary.jsx";
+
 import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import VerifyEmailPage from "./pages/VerifyEmailPage.jsx";
@@ -9,11 +16,9 @@ import DashboardPage from "./pages/DashboardPage.jsx";
 import Profile from "./pages/Profile.jsx";
 import Wallet from "./pages/Wallet.jsx";
 import BillingHistory from "./pages/BillingHistory.jsx";
-import { Toaster } from 'react-hot-toast';
-import { useAuthStore } from "./Store/AuthStore.js";
-import LocationHistory from "./pages/locationHistory.jsx";
-import LoadingSpinner from "./components/LoadingSpinner.jsx";
-import ErrorBoundary from "./ErrorHandling/ErrorBoundary.jsx"
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
+import ContactUs from "./pages/ContactUsPage.jsx";
 
 // Protect Authenticated route
 const ProtectedRoute = ({ children }) => {
@@ -65,11 +70,16 @@ function App() {
           <Route path="/signup" element={<RedirectAuthenticatedUser><SignUpPage /></RedirectAuthenticatedUser>} />
           <Route path="/login" element={<RedirectAuthenticatedUser><LoginPage /></RedirectAuthenticatedUser>} />
           <Route path="/verifyemail" element={<VerifyEmailPage />} />
+          <Route path="/forgot-password" element={<RedirectAuthenticatedUser><ForgotPasswordPage/></RedirectAuthenticatedUser>} />
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/wallet" element={<Wallet />} />
-          <Route path="/billing-history" element={<BillingHistory />} />
-          <Route path="/location-history" element={<LocationHistory />} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+          <Route path="/billing-history" element={<ProtectedRoute><BillingHistory /></ProtectedRoute>} />
+          <Route path="/location-history" element={<ProtectedRoute><LocationHistory /></ProtectedRoute>} />
+          <Route path="/contact-us" element={<ProtectedRoute><ContactUs /></ProtectedRoute>} />
+          <Route path='/reset-password/:token'element={<RedirectAuthenticatedUser><ResetPasswordPage /></RedirectAuthenticatedUser>}/>
+          {/* catch all routes */}
+				  <Route path='*' element={<Navigate to='/' replace />} />
         </Routes>
       </ErrorBoundary>
 

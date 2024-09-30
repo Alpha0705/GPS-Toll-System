@@ -1,26 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import Modal from 'react-modal';
-import RoutingMachine from 'react-leaflet-routing-machine';
 import Navbar from '../components/Navbar.jsx';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 
-// Fix marker icons for leaflet
+// Fix marker icons for Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+  shadowUrl: '', // Remove shadow for default markers
+});
+
+// Custom icon for user location (no shadow)
+const userLocationIcon = new L.Icon({
+  iconUrl: 'https://cdn-icons-png.flaticon.com/512/854/854878.png',
+  iconRetinaUrl: 'https://cdn-icons-png.flaticon.com/512/854/854878.png',
+  iconSize: [40, 55], // Adjust the size as needed for better visibility
+  iconAnchor: [20, 55], // Adjust anchor point
+  popupAnchor: [1, -45], // Position of the popup relative to the icon
+  shadowUrl: '', // No shadow for the custom marker
 });
 
 const DashboardPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [startPoint, setStartPoint] = useState('');
-  const [destination, setDestination] = useState('');
-  const [routePoints, setRoutePoints] = useState([]);
+  const [userLocation, setUserLocation] = useState([20.5937, 78.9629]); // Default to India center
+  const [tollPlazaData, setTollPlazaData] = useState([]);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -36,43 +43,33 @@ const DashboardPage = () => {
     setIsModalOpen(false);
   };
 
-  const addVehicle = () => {
-    navigate('/add-vehicle');
-  };
-
-  const geocodePlace = async (placeName) => {
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${placeName}`
-      );
-      const data = await response.json();
-      if (data && data.length > 0) {
-        const { lat, lon } = data[0];
-        return [parseFloat(lat), parseFloat(lon)];
-      } else {
-        console.error(`No results found for ${placeName}`);
-        return null;
-      }
-    } catch (error) {
-      console.error(`Geocoding error: ${error}`);
-      return null;
+  useEffect(() => {
+    // Get user's current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setUserLocation([position.coords.latitude, position.coords.longitude]);
+      });
     }
-  };
 
-  const handleRouteSubmit = async () => {
-    if (startPoint && destination) {
-      const startCoords = await geocodePlace(startPoint);
-      const destCoords = await geocodePlace(destination);
-      if (startCoords && destCoords) {
-        setRoutePoints([startCoords, destCoords]);
-      } else {
-        alert('Invalid start or destination point');
-        setRoutePoints([]); // Clear route points if there's an error
-      }
-    } else {
-      alert('Please enter both start and destination points');
-    }
-  };
+    // Fetch toll data from the JSON file
+    fetch('/tollData/toll.json')
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text(); // Get response as text first
+      })
+      .then((text) => {
+        try {
+          const jsonData = JSON.parse(text); // Parse the text as JSON
+          setTollPlazaData(jsonData.d || []); // Assuming data is inside the "d" property
+        } catch (error) {
+          console.error('Error parsing JSON:', error, 'Response Text:', text);
+          throw new Error('Invalid JSON response');
+        }
+      })
+      .catch((error) => console.error('Error loading toll data:', error));
+  }, []);
 
   return (
     <div className="flex flex-col h-screen w-5/6 bg-gray-50 bg-opacity-50">
@@ -81,94 +78,41 @@ const DashboardPage = () => {
 
       {/* Main Content Area */}
       <div className="flex flex-1 mt-4 mx-4 mb-4 p-4 rounded-lg overflow-hidden shadow-md bg-white">
-        {/* Left side with route input */}
-        <div className="w-1/3 p-4 bg-gray-100 flex flex-col rounded-lg shadow-md">
-          <div className="flex justify-between items-center mb-4">
-            <button
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
-              onClick={addVehicle}
-            >
-              +Add Vehicle
-            </button>
-          </div>
-
-          <div className="mt-8 p-4 bg-gray-200 rounded-lg flex-grow shadow-lg">
-            <h3 className="text-lg font-bold mb-2">Enter Route</h3>
-            <input
-              type="text"
-              value={startPoint}
-              onChange={(e) => setStartPoint(e.target.value)}
-              placeholder="Start point (place name)"
-              className="border p-2 rounded w-full mb-2"
-            />
-            <input
-              type="text"
-              value={destination}
-              onChange={(e) => setDestination(e.target.value)}
-              placeholder="Destination (place name)"
-              className="border p-2 rounded w-full mb-4"
-            />
-            <button
-              onClick={handleRouteSubmit}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 w-full"
-            >
-              Set Route
-            </button>
-          </div>
-        </div>
-
         {/* Right side with map */}
-        <div className="flex-grow ml-4 rounded-lg overflow-hidden shadow-md">
+        <div className="flex-grow rounded-lg overflow-hidden shadow-md">
           <MapContainer
-            center={[20.5937, 78.9629]}
-            zoom={5}
+            center={userLocation}
+            zoom={10}
             className="h-full w-full rounded-lg"
+            whenCreated={(map) => map.locate({ setView: true, maxZoom: 16 })}
           >
             <TileLayer
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
-            {routePoints.length > 0 && (
-              <>
-                <Marker position={routePoints[0]}>
-                  <Popup>Start Point</Popup>
-                </Marker>
-                <Marker position={routePoints[1]}>
-                  <Popup>Destination</Popup>
-                </Marker>
-                <RoutingMachine
-                  waypoints={routePoints.map(point => L.latLng(point[0], point[1]))}
-                  routeWhileDragging={true}
-                />
-              </>
-            )}
+            {/* Add marker for user's current location */}
+            <Marker position={userLocation} icon={userLocationIcon}>
+              <Popup>Your Location</Popup>
+            </Marker>
+            {/* Add markers for the toll plazas */}
+            {tollPlazaData.map((plaza) => (
+              <Marker key={plaza.TollPlazaID} position={[plaza.latitude, plaza.longitude]}>
+                <Popup>
+                  <strong>{plaza.TollName || "Unknown Toll Name"}</strong><br />
+                  Location: {plaza.Location || "Unknown Location"}<br />
+                  {plaza.operator && <b>{plaza.operator}</b>}<br /> {/* Assuming there's an 'operator' field */}
+                  Single Car Rate: ₹{plaza.CarRate_single || "N/A"}<br />
+                  Distance: {Math.round(L.latLng(userLocation).distanceTo(L.latLng(plaza.latitude, plaza.longitude)))} meters
+                </Popup>
+              </Marker>
+            ))}
           </MapContainer>
         </div>
       </div>
-
-      {/* Logout Confirmation Modal */}
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={cancelLogout}
-        contentLabel="Logout Confirmation"
-        className="bg-gray-800 text-white p-6 rounded-lg shadow-lg w-[300px] mx-auto my-auto"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-      >
-        <h2 className="text-xl font-semibold mb-4">Are you sure you want to logout?</h2>
-        <div className="flex justify-around">
-          <button
-            className="bg-emerald-500 px-4 py-2 rounded-lg hover:bg-emerald-600"
-            onClick={confirmLogout}
-          >
-            Yes
-          </button>
-          <button
-            className="bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600"
-            onClick={cancelLogout}
-          >
-            No
-          </button>
-        </div>
+      <Modal isOpen={isModalOpen} onRequestClose={cancelLogout}>
+        <h2>Are you sure you want to logout?</h2>
+        <button onClick={confirmLogout}>Yes</button>
+        <button onClick={cancelLogout}>No</button>
       </Modal>
     </div>
   );
