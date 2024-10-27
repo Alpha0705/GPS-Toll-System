@@ -84,11 +84,24 @@ const Profile = () => {
     setSelectedVehicle(vehicleNumber === selectedVehicle ? null : vehicleNumber);
   };
 
+  // Cancel add vehicle
+  const handleCancelAddVehicle = () => {
+    setNewVehicle({
+      vehicleNumber: '',
+      registrationNumber: '',
+      vehicleType: '',
+      ownerName: '',
+      company: '',
+      model: '',
+    });
+    setIsAddingVehicle(false);
+  };
+
   return (
     <Layout>
       <div className="flex flex-row justify-center space-x-4 p-8">
         {/* Profile Content */}
-        <main className="w-3/5 h-auto p-6 rounded-lg shadow-md bg-white"> {/* Increased width */}
+        <main className="w-13/14 max-w-[800px] h-auto p-6 rounded-lg shadow-md bg-white"> {/* Fixed width */ }
           <h1 className="text-2xl font-semibold">Profile</h1>
           <div className="flex mt-6 space-x-6">
             <div className="w-full bg-gray-50 p-6 rounded-lg shadow-md">
@@ -246,11 +259,11 @@ const Profile = () => {
                       )}
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Personal ID</p>
+                      <p className="text-sm text-gray-600">PID</p>
                       {isEditing ? (
                         <input
                           type="text"
-                          name="PID"
+                          name="Pid"
                           value={userInfo.Pid}
                           onChange={handleChange}
                           className="w-full border p-2 rounded"
@@ -263,111 +276,110 @@ const Profile = () => {
                 </div>
               </div>
             </div>
-          </div>
-        </main>
 
-        <main className="w-3/5 h-auto p-6 rounded-lg shadow-md bg-white"> {/* Increased width */}
-          <h1 className="text-2xl font-semibold">Vehicle Information</h1>
-          <div className="mt-6">
-            <div className="bg-gray-50 p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-4">Vehicle List</h2>
-              {vehicles.length === 0 ? (
-                <p className="text-gray-600">No vehicles added yet.</p>
-              ) : (
-                <ul className="space-y-4">
+            {/* Vehicle Management Section */}
+            <div className="w-full bg-gray-50 p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold">Vehicles</h3>
+              <div className="mt-4">
+                <button
+                  onClick={() => setIsAddingVehicle(true)}
+                  className="text-blue-500"
+                >
+                  Add Vehicle
+                </button>
+                {isAddingVehicle && (
+                  <div className="mt-4">
+                    <h4 className="text-md font-semibold">Add New Vehicle</h4>
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                      <input
+                        type="text"
+                        name="vehicleNumber"
+                        value={newVehicle.vehicleNumber}
+                        onChange={handleVehicleChange}
+                        placeholder="Vehicle Number"
+                        className="border p-2 rounded"
+                      />
+                      <input
+                        type="text"
+                        name="registrationNumber"
+                        value={newVehicle.registrationNumber}
+                        onChange={handleVehicleChange}
+                        placeholder="Registration Number"
+                        className="border p-2 rounded"
+                      />
+                      <input
+                        type="text"
+                        name="vehicleType"
+                        value={newVehicle.vehicleType}
+                        onChange={handleVehicleChange}
+                        placeholder="Vehicle Type"
+                        className="border p-2 rounded"
+                      />
+                      <input
+                        type="text"
+                        name="ownerName"
+                        value={newVehicle.ownerName}
+                        onChange={handleVehicleChange}
+                        placeholder="Owner Name"
+                        className="border p-2 rounded"
+                      />
+                      <input
+                        type="text"
+                        name="company"
+                        value={newVehicle.company}
+                        onChange={handleVehicleChange}
+                        placeholder="Company"
+                        className="border p-2 rounded"
+                      />
+                      <input
+                        type="text"
+                        name="model"
+                        value={newVehicle.model}
+                        onChange={handleVehicleChange}
+                        placeholder="Model"
+                        className="border p-2 rounded"
+                      />
+                    </div>
+                    <div className="mt-4">
+                      <button
+                        onClick={handleAddVehicle}
+                        className="text-blue-500 mr-4"
+                      >
+                        Add
+                      </button>
+                      <button
+                        onClick={handleCancelAddVehicle}
+                        className="text-red-500"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <ul className="mt-4">
                   {vehicles.map((vehicle, index) => (
                     <li
                       key={index}
+                      className={`flex justify-between items-center p-2 border-b ${
+                        selectedVehicle === vehicle.vehicleNumber ? 'bg-gray-200' : ''
+                      }`}
                       onClick={() => handleVehicleSelect(vehicle.vehicleNumber)}
-                      className={`p-4 border rounded-lg cursor-pointer ${selectedVehicle === vehicle.vehicleNumber ? 'bg-blue-100' : ''}`}
                     >
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <h3 className="font-semibold">{vehicle.vehicleNumber}</h3>
-                          <p className="text-gray-600">{vehicle.registrationNumber}</p>
-                        </div>
-                        {selectedVehicle === vehicle.vehicleNumber && <span className="text-green-500">Selected</span>}
+                      <div>
+                        {vehicle.vehicleNumber} - {vehicle.registrationNumber}
                       </div>
+                      <button
+                        className="text-red-500"
+                        onClick={() => {
+                          setVehicles(vehicles.filter((v) => v !== vehicle));
+                        }}
+                      >
+                        Delete
+                      </button>
                     </li>
                   ))}
                 </ul>
-              )}
-              <button
-                className="mt-4 text-blue-500"
-                onClick={() => setIsAddingVehicle(!isAddingVehicle)}
-              >
-                {isAddingVehicle ? 'Cancel' : 'Add New Vehicle'}
-              </button>
-              {isAddingVehicle && (
-                <div className="mt-4 space-y-4">
-                  <div>
-                    <label className="block text-sm">Vehicle Number</label>
-                    <input
-                      type="text"
-                      name="vehicleNumber"
-                      value={newVehicle.vehicleNumber}
-                      onChange={handleVehicleChange}
-                      className="w-full border p-2 rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm">Registration Number</label>
-                    <input
-                      type="text"
-                      name="registrationNumber"
-                      value={newVehicle.registrationNumber}
-                      onChange={handleVehicleChange}
-                      className="w-full border p-2 rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm">Vehicle Type</label>
-                    <input
-                      type="text"
-                      name="vehicleType"
-                      value={newVehicle.vehicleType}
-                      onChange={handleVehicleChange}
-                      className="w-full border p-2 rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm">Owner Name</label>
-                    <input
-                      type="text"
-                      name="ownerName"
-                      value={newVehicle.ownerName}
-                      onChange={handleVehicleChange}
-                      className="w-full border p-2 rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm">Company</label>
-                    <input
-                      type="text"
-                      name="company"
-                      value={newVehicle.company}
-                      onChange={handleVehicleChange}
-                      className="w-full border p-2 rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm">Model</label>
-                    <input
-                      type="text"
-                      name="model"
-                      value={newVehicle.model}
-                      onChange={handleVehicleChange}
-                      className="w-full border p-2 rounded"
-                    />
-                  </div>
-                  <button
-                    onClick={handleAddVehicle}
-                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
-                  >
-                    Add Vehicle
-                  </button>
-                </div>
-              )}
+              </div>
             </div>
           </div>
         </main>

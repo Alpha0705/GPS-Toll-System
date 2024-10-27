@@ -15,7 +15,7 @@ import HomePage from "./pages/HomePage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
 import Profile from "./pages/Profile.jsx";
 import Wallet from "./pages/Wallet.jsx";
-import BillingHistory from "./pages/BillingHistory.jsx";
+import Billing from "./pages/Billing.jsx";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import ContactUs from "./pages/ContactUsPage.jsx";
@@ -74,7 +74,7 @@ function App() {
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
-          <Route path="/billing-history" element={<ProtectedRoute><BillingHistory /></ProtectedRoute>} />
+          <Route path="/billing-history" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
           <Route path="/location-history" element={<ProtectedRoute><LocationHistory /></ProtectedRoute>} />
           <Route path="/contact-us" element={<ProtectedRoute><ContactUs /></ProtectedRoute>} />
           <Route path='/reset-password/:token'element={<RedirectAuthenticatedUser><ResetPasswordPage /></RedirectAuthenticatedUser>}/>

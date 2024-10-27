@@ -17,7 +17,7 @@ const Navbar = () => {
     { icon: <Home />, label: 'Dashboard', link: '/dashboard' },
     { icon: <User />, label: 'Profile', link: '/profile' },
     { icon: <Wallet />, label: 'Wallet', link: '/wallet' },
-    { icon: <FileText />, label: 'Billing History', link: '/billing-history' },
+    { icon: <FileText />, label: 'Billing', link: '/billing-history' },
     { icon: <Compass />, label: 'Location History', link: '/location-history' },
     { icon: <MessageCircle />, label: 'Contact Us', link: '/contact-us' }, // Contact Us item
   ];
