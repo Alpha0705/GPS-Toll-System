@@ -83,7 +83,7 @@ const DashboardPage = () => {
           <MapContainer
             center={userLocation}
             zoom={10}
-            className="h-full w-full rounded-lg"
+            className="h-full w-full rounded-lg z-0"
             whenCreated={(map) => map.locate({ setView: true, maxZoom: 16 })}
           >
             <TileLayer
@@ -98,8 +98,9 @@ const DashboardPage = () => {
             {tollPlazaData.map((plaza) => (
               <Marker key={plaza.TollPlazaID} position={[plaza.latitude, plaza.longitude]}>
                 <Popup>
+                  Location: 
                   <strong>{plaza.TollName || "Unknown Toll Name"}</strong><br />
-                  Location: {plaza.Location || "Unknown Location"}<br />
+                  {/* Location: {plaza.Location || "Unknown Location"}<br /> */}
                   {plaza.operator && <b>{plaza.operator}</b>}<br /> {/* Assuming there's an 'operator' field */}
                   Single Car Rate: ₹{plaza.CarRate_single || "N/A"}<br />
                   Distance: {Math.round(L.latLng(userLocation).distanceTo(L.latLng(plaza.latitude, plaza.longitude)))} meters
